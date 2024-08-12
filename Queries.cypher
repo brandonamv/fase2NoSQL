@@ -1,18 +1,16 @@
+:param generos => ['Action', 'Adventure']
 MATCH (j:Juego)-[:SU_GENERO]->(g:Genero)
-WHERE g.name IN ["Action", "Adventure"]
-WITH j, COLLECT(g.name) AS genres
-WHERE ALL(genre IN ["Action", "Adventure"] WHERE genre IN genres)
-RETURN j.name AS Juego, genres
+WHERE g.name IN $generos
+RETURN DISTINCT j
 
 
+:param nombreEmpresa => “”
 MATCH (j:Juego)-[:DESARROLLADO_POR]->(e:Empresa)
 WHERE e.name = $nombreEmpresa
 RETURN j.name AS Juego, e.name AS Empresa
-LIMIT $numeroJuegos
 
 
 :param n => 2
-
 MATCH (j:Juego)-[:SU_PLATAFORMA]->(p:Plataforma)
 WITH j, COUNT(p) AS numPlataformas
 WHERE numPlataformas > $n
