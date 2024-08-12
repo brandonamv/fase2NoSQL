@@ -63,4 +63,4 @@ WHERE g.name IN $generos
 WITH AVG(j.rate) AS promedio
 MATCH (j:Videojuego)-[:SU_GENERO]->(g:Genero)
 WHERE g.name IN $generos AND j.rate > promedio
-RETURN j.name AS Videojuego, j.rate AS rating 
+RETURN DISTINCT(j.name) AS Videojuego, j.rate AS rating 
