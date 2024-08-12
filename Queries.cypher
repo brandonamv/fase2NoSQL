@@ -1,33 +1,34 @@
 //consulta 1
 
-:param generos => ['Action', 'Adventure']
+:param generos => ['Block-Breaking', 'Shooter']
 
-MATCH (j:Juego)-[:SU_GENERO]->(g:Genero)
-WHERE g.name IN $generos
-RETURN DISTINCT j
+MATCH (v:Videojuego)-[:SU_GENERO]->(g:Genero)
+WITH v, COLLECT(g.name) AS genres
+WHERE ALL(genre IN $generos WHERE genre IN genres)
+RETURN v.name AS Juego, genres
 
 //consulta 2
 
-:param nombreEmpresa => “”
+:param nombreEmpresa => "Ariolasoft UK"
 
-MATCH (j:Juego)-[:DESARROLLADO_POR]->(e:Empresa)
+MATCH (j:Videojuego)-[:DESARROLLADO_POR]->(e:Empresa)
 WHERE e.name = $nombreEmpresa
-RETURN j.name AS Juego, e.name AS Empresa
+RETURN j.name AS Videojuego, e.name AS Empresa
 
 //consulta 3
 
 :param n => 2
 
-MATCH (j:Juego)-[:SU_PLATAFORMA]->(p:Plataforma)
+MATCH (j:Videojuego)-[:SU_PLATAFORMA]->(p:Plataforma)
 WITH j, COUNT(p) AS numPlataformas
 WHERE numPlataformas > $n
-RETURN j.name AS Juego, numPlataformas AS TotalPlataformas
+RETURN j.name AS Videojuego, numPlataformas AS TotalPlataformas
 
 //consulta 4
 
 :param n => 4
 
-MATCH (j:Juego)-[:SU_PLATAFORMA]->(p:Plataforma)
+MATCH (j:Videojuego)-[:SU_PLATAFORMA]->(p:Plataforma)
 WITH j, COUNT(p) AS numPlataformas
 WHERE numPlataformas > $n
 RETURN COUNT(j) AS TotalJuegos
@@ -36,40 +37,30 @@ RETURN COUNT(j) AS TotalJuegos
 
 :param n => 7.5
 
-MATCH (j:Juego)
-WHERE j.rating > $n
+MATCH (j:Videojuego)
+WHERE j.rate > $n
 RETURN j
 
 
 //consulta6
 
-:param etiquetas => ['Multiplayer', 'Singleplayer']
-:param generos => ['Action', 'Adventure']
+:param etiquetas => ['Sci-Fi', 'World War II']
+:param generos => ['Action', 'Text Adventure']
 
-WITH $etiquetas AS etiquetas, $generos AS generos
-MATCH (j:Juego)-[:SU_ETIQUETA]->(t:Tag)
-WHERE t.name IN etiquetas
-WITH j, COUNT(t) AS etiquetaCount
-WHERE etiquetaCount = SIZE(etiquetas)
-MATCH (j)-[:SU_GENERO]->(g:Género)
-WHERE g.name IN generos
-WITH j, etiquetaCount, COUNT(g) AS generoCount
-WHERE generoCount = SIZE(generos)
-RETURN j.name AS juego, etiquetaCount, generoCount
+MATCH (j:Videojuego)-[:SU_ETIQUETA]->(t:Etiqueta)
+WHERE t.name IN $etiquetas
+MATCH (j)-[:SU_GENERO]->(g:Genero)
+WHERE g.name IN $generos
+RETURN DISTINCT(j.name)
 
 
 //consulta 7
 
-:param generos => ['RPG', 'FPS']
+:param generos => ['Shooter', 'Action']
 
-WITH $generos AS generos
-MATCH (j:Juego)-[:SU_GENERO]->(g:Género)
-WHERE g.name IN generos
-WITH AVG(j.rating) AS promedio
-MATCH (j:Juego)-[:SU_GENERO]->(g:Género)
-WHERE g.name IN generos
-AND j.rating > promedio
-RETURN j.name AS juego, j.rating AS rating
-WITH j, COUNT(DISTINCT g) AS numGeneros, promedioCalificacion
-WHERE numGeneros > $cantidadDeGeneros AND j.rating > promedioCalificacion
-RETURN j.name AS nombre, j.rating AS calificacion, numGeneros
+MATCH (j:Videojuego)-[:SU_GENERO]->(g:Genero)
+WHERE g.name IN $generos
+WITH AVG(j.rate) AS promedio
+MATCH (j:Videojuego)-[:SU_GENERO]->(g:Genero)
+WHERE g.name IN $generos AND j.rate > promedio
+RETURN j.name AS Videojuego, j.rate AS rating 
